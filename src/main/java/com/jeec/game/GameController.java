@@ -62,7 +62,13 @@ public class GameController {
     @RequestMapping(value={"/"})
     public String index() {
         String ip = GameController.getIp();
-        StringBuilder page = new StringBuilder("Dixit Helper.<br> \nNyisd meg ezt a c\u00edmet a jelentkez\u00e9shez: <b>http://" + ip + ":8080/start.html</b>");
+        StringBuilder page = new StringBuilder("Dixit Helper.<br> \n"+
+            "Nyisd meg ezt a c\u00edmet a jelentkez\u00e9shez: ");
+        String address="http://" + ip + ":8080/start.html";
+        page.append("<b><a href=\""+address+"\">"+address+"</a></b>");
+        page.append("<br>... vagy olvasd be a QR kódot az induló oldal címét, és úgy nyisd meg!<br>");
+        final int STARTING_XML_HEADER_LENGTH = 137;
+        page.append(new String(createQRImage()).substring(STARTING_XML_HEADER_LENGTH));
         return page.toString();
     }
 
@@ -72,7 +78,7 @@ public class GameController {
         this.ip = GameController.getIp();
         QrCode qr0 = QrCode.encodeText(this.ip, QrCode.Ecc.MEDIUM);
         String imageSVG = qr0.toSvgString(1);
-        System.out.println(imageSVG);
+        //System.out.println(imageSVG);
         return imageSVG.getBytes();
     }
 
