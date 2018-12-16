@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.137.
- */
 package com.jeec.game;
 
 public enum ColorCode {
@@ -11,15 +8,15 @@ public enum ColorCode {
     PINK("R\u00f3zsasz\u00edn", "#f263c9"),
     WHITE("Feh\u00e9r", "#FFFFFF"),
     YELLOW("S\u00e1rga", "yellow"),
-    LIGHTBLUE("", ""),
-    CLARET("", ""),
-    LIGHTGREEN("", ""),
-    GRAY("", ""),
-    MAGENTA("", ""),
-    PURPLE("", ""),
-    BEIGE("", ""),
-    BROWN("", "");
-    
+    LIGHTBLUE("Világoskék", "#87b5ff"),
+    CLARET("bordó", "#960d09"),
+    LIGHTGREEN("Világoszöld", "#73ff60"),
+    GRAY("Szürke", "#878787"),
+    MAGENTA("Magenta", "#d80097"),
+    PURPLE("Lila", "#8c00b7"),
+    BEIGE("Bézs", "#ffdf89"),
+    BROWN("Barna", "#844800");
+
     private String colorStr;
     private String colorName;
 

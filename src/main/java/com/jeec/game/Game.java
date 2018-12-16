@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.137.
- */
 package com.jeec.game;
 
 import com.jeec.game.ColorCode;
@@ -18,13 +15,26 @@ public class Game {
     private GameState state = GameState.WAITING_FOR_PLAYERS;
     private Map<String, Player> players = new HashMap<String, Player>();
     private Map<String, Device> devices = new HashMap<String, Device>();
-    private int round;
+    private Map<String, String> availableColors = new HashMap<>();
+
+	private int round;
     int tellerOrder = -1;
     private boolean playersLocked;
     private TreeMap<Integer, String> playerNames = new TreeMap();
-    
+
     public Game() {
     	Player.resetPlayerIds();
+        initAllColors();
+    }
+
+    private void initAllColors() {
+		for (ColorCode color: ColorCode.values()) {
+			availableColors.put(color.name(), color.getColorStr());
+		}
+	}
+
+    public Map<String, String> getAvailableColors() {
+        return availableColors;
     }
 
     public GameState getState() {
@@ -48,6 +58,7 @@ public class Game {
             return checkResult;
         }
         Player player = new Player(playerName, ColorCode.findColor(colorName), deviceHash, this.players.size());
+        this.availableColors.remove(ColorCode.findColor(colorName).name());
         this.players.put(playerName, player);
         this.devices.get(deviceHash).addPlayer(player);
         this.playerNames.put(player.getPlayerOrder(), playerName);

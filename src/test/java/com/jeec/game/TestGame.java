@@ -1,16 +1,3 @@
-/*
- * Decompiled with CFR 0.137.
- * 
- * Could not load the following classes:
- *  com.jeec.game.ColorCode
- *  com.jeec.game.Game
- *  com.jeec.game.GameState
- *  com.jeec.game.Player
- *  com.jeec.game.PlayerState
- *  org.junit.Assert
- *  org.junit.Before
- *  org.junit.Test
- */
 package com.jeec.game;
 
 import com.jeec.game.ColorCode;
@@ -36,6 +23,13 @@ public class TestGame {
         this.game.addDevice(DEV_HASH);
         String res = this.game.addPlayer(DEV_HASH, "Joe", ColorCode.BLUE.name());
         Assert.assertEquals(res, "OK");
+        Assert.assertEquals(ColorCode.values().length-1, game.getAvailableColors().size());
+        Assert.assertNull(game.getAvailableColors().get(ColorCode.BLUE.name()));
+    }
+
+    @Test
+    public void testAvailableColors() {
+        Assert.assertEquals(ColorCode.values().length, this.game.getAvailableColors().size());
     }
 
     @Test
@@ -44,6 +38,7 @@ public class TestGame {
         String res = this.game.addPlayer(DEV_HASH, "Joe", ColorCode.BLUE.name());
         res = this.game.addPlayer(DEV_HASH, "Joe", ColorCode.GREEN.name());
         Assert.assertNotEquals("OK", res);
+
     }
 
     @Test
@@ -95,7 +90,7 @@ public class TestGame {
     public void testFindPlayer() {
         this.initPlayers();
         Player player = this.game.findPlayerByOrder(1);
-        Assert.assertEquals((long)1L, (long)player.getPlayerOrder());
+        Assert.assertEquals(1L, player.getPlayerOrder());
         Assert.assertEquals("Jack", player.getName());
     }
 
@@ -104,7 +99,7 @@ public class TestGame {
         this.initPlayers();
         Player player = this.game.findPlayerByOrder(1);
         this.game.playerUp(player);
-        Assert.assertEquals((long)0L, (long)player.getPlayerOrder());
+        Assert.assertEquals(0L, player.getPlayerOrder());
         Assert.assertEquals("Jack", player.getName());
         Assert.assertEquals("Joe", this.game.findPlayerByOrder(1).getName());
     }
@@ -197,9 +192,9 @@ public class TestGame {
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(0).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(1).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(2).getState());
-        Assert.assertEquals((long)3L, (long)this.game.getPlayer(0).getPoint());
-        Assert.assertEquals((long)0L, (long)this.game.getPlayer(1).getPoint());
-        Assert.assertEquals((long)4L, (long)this.game.getPlayer(2).getPoint());
+        Assert.assertEquals(3L, this.game.getPlayer(0).getPoint());
+        Assert.assertEquals(0L, this.game.getPlayer(1).getPoint());
+        Assert.assertEquals(4L, this.game.getPlayer(2).getPoint());
     }
 
     @Test
@@ -214,9 +209,9 @@ public class TestGame {
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(0).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(1).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(2).getState());
-        Assert.assertEquals((long)0L, (long)this.game.getPlayer(0).getPoint());
-        Assert.assertEquals((long)2L, (long)this.game.getPlayer(1).getPoint());
-        Assert.assertEquals((long)2L, (long)this.game.getPlayer(2).getPoint());
+        Assert.assertEquals(0L, this.game.getPlayer(0).getPoint());
+        Assert.assertEquals(2L, this.game.getPlayer(1).getPoint());
+        Assert.assertEquals(2L, this.game.getPlayer(2).getPoint());
     }
 
     @Test
@@ -231,8 +226,8 @@ public class TestGame {
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(0).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(1).getState());
         Assert.assertEquals(PlayerState.ROUND_ENDED, this.game.getPlayer(2).getState());
-        Assert.assertEquals((long)0L, (long)this.game.getPlayer(0).getPoint());
-        Assert.assertEquals((long)1L, (long)this.game.getPlayer(1).getPoint());
-        Assert.assertEquals((long)1L, (long)this.game.getPlayer(2).getPoint());
+        Assert.assertEquals(0L, this.game.getPlayer(0).getPoint());
+        Assert.assertEquals(1L, this.game.getPlayer(1).getPoint());
+        Assert.assertEquals(1L, this.game.getPlayer(2).getPoint());
     }
 }

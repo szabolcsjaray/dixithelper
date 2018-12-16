@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.137.
- */
 package com.jeec.game;
 
 import com.jeec.game.ColorCode;
@@ -68,6 +65,10 @@ public class Player {
 
     public ColorCode getColor() {
         return this.color;
+    }
+
+    public String getColorStr() {
+        return this.color.getColorStr();
     }
 
     public void setColor(ColorCode color) {
