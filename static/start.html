@@ -4,26 +4,67 @@
 <meta charset="UTF-8">
 <title>DixitHelper induló oldal</title>
     <script type="text/javascript" >
-        function sendRest(address) {
+    
+        var colorDivContent = "";
+        var selectedColor = "";
+        function sendRest(address, callBack) {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                    // Typical action to be performed when the document is ready:
                    document.getElementById("demo").innerHTML = xhttp.responseText;
+                   callBack(xhttp.responseText)
                 }
             };
             xhttp.open("GET", address, true);
             xhttp.send();
         }
+        
+        function addColorDiv(colStr,colName) {
+            colorDivContent += "<div "+
+                "style=\"display:inline-block; background-color: "+colStr+";"+
+                  " width:150px; height:80px; margin: 20px; border: 2px solid #C0C0F0;\" "+
+                  "colorName=\""+colName+"\" "+
+                  "onClick=\"selectColor(\'"+colName+"\', this);\" "+
+                  "id=\""+colName+"\" "+
+                  ">"+
+                "&nbsp;"+
+                "</div>";
+        }
+        
+        function selectColor(colName, divEl) {
+            if (selectedColor!="") {
+                document.getElementById(selectedColor).style.borderWidth="2px";
+            }
+            selectedColor=colName;
+            divEl.style.borderWidth="10px";
+        }
 
-        sendRest("http://192.168.0.94:8080/getgame");
+        function initColors(gameJson) {
+            game = JSON.parse(gameJson);
+            colorDivContent = "";
+            Object.keys(game.availableColors).forEach(function(key, index) {addColorDiv(game.availableColors[key], key)});
+            document.getElementById("colorsDiv").innerHTML = colorDivContent;
+        }
+        
+        function init() {
+            sendRest("http://192.168.0.94:8080/getgame", initColors);
+        }
     </script>
 </head>
 
-<body>
-DIXITHELPER<br>
-Welcome!<br>
-<div id="demo">
+<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; font-size:30px;">
+<h2 style="text-align:center;">DIXITHELPER</h2>
+
+<form ">
+    Játékos neve: <input id="playerName" type="text" style="font-size:40px;" size="10" /><br><br>
+    
+</form>
+Válassz színt ezek közül:<br>
+<div id="colorsDiv" style="display:block;">
+</div>
+<br>
+<div id="demo" style="display:none;">
 </div>
 </body>
 

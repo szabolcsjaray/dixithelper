@@ -1,6 +1,6 @@
 /*
  * Decompiled with CFR 0.137.
- * 
+ *
  * Could not load the following classes:
  *  org.springframework.http.HttpStatus
  *  org.springframework.http.ResponseEntity
@@ -75,8 +75,8 @@ public class GameController {
     @RequestMapping(value={"/qrimage"})
     @ResponseBody
     public byte[] createQRImage() {
-        this.ip = GameController.getIp();
-        QrCode qr0 = QrCode.encodeText(this.ip, QrCode.Ecc.MEDIUM);
+        String startPage = "http://"+GameController.getIp()+":8080/start.html";
+        QrCode qr0 = QrCode.encodeText(startPage, QrCode.Ecc.MEDIUM);
         String imageSVG = qr0.toSvgString(1);
         //System.out.println(imageSVG);
         return imageSVG.getBytes();
@@ -92,19 +92,19 @@ public class GameController {
         String result = this.game.addPlayer(addPlayerForm.getDeviceHash(), addPlayerForm.getPlayerName(), addPlayerForm.getColorName());
         if ("OK".equals(result)) {
             System.out.println("Added Player:" + addPlayerForm);
-            return new ResponseEntity((Object)"OK", HttpStatus.OK);
+            return new ResponseEntity("OK", HttpStatus.OK);
         }
         System.out.println("Problem while adding Player:" + addPlayerForm);
-        return new ResponseEntity((Object)result, HttpStatus.CONFLICT);
+        return new ResponseEntity(result, HttpStatus.CONFLICT);
     }
 
     @RequestMapping(value={"/getPlayer/{playerId}"})
     public ResponseEntity<Player> getPlayer(@PathVariable(value="playerId") int playerId) {
         Player player = this.game.getPlayer(playerId);
         if (player == null) {
-            return new ResponseEntity((Object)player, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(player, HttpStatus.NOT_FOUND);
         }
-        ResponseEntity response = new ResponseEntity((Object)player, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(player, HttpStatus.OK);
         return response;
     }
 
@@ -112,10 +112,10 @@ public class GameController {
     public ResponseEntity<Player> playerUp(@PathVariable(value="playerId") int playerId) {
         Player player = this.game.getPlayer(playerId);
         if (player == null) {
-            return new ResponseEntity((Object)player, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(player, HttpStatus.NOT_FOUND);
         }
         this.game.playerUp(player);
-        ResponseEntity response = new ResponseEntity((Object)player, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(player, HttpStatus.OK);
         return response;
     }
 
@@ -123,37 +123,37 @@ public class GameController {
     public ResponseEntity<Integer> conflictReset(@PathVariable(value="playerId") int playerId) {
         Player player = this.game.getPlayer(playerId);
         if (player == null) {
-            return new ResponseEntity((Object)new Integer(-1), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Integer(-1), HttpStatus.NOT_FOUND);
         }
         int resetNum = this.game.conflictReset(player);
-        ResponseEntity response = new ResponseEntity((Object)resetNum, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(resetNum, HttpStatus.OK);
         return response;
     }
 
     @RequestMapping(value={"/nextRound"})
     public ResponseEntity<Integer> nextRound() {
         int round = this.game.nextRound();
-        ResponseEntity response = new ResponseEntity((Object)round, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(round, HttpStatus.OK);
         return response;
     }
 
     @RequestMapping(value={"/getgame"})
     public ResponseEntity<Game> getGame() {
-        ResponseEntity response = new ResponseEntity((Object)this.game, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(this.game, HttpStatus.OK);
         return response;
     }
 
     @RequestMapping(value={"/getgameversion"})
     public ResponseEntity<Integer> getGameVersion() {
         Integer res = this.game.getStateVersion();
-        ResponseEntity response = new ResponseEntity((Object)res, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(res, HttpStatus.OK);
         return response;
     }
 
     @RequestMapping(value={"/startgame"})
     public ResponseEntity<Integer> startGame() {
         Integer res = this.game.startGame();
-        ResponseEntity response = new ResponseEntity((Object)res, HttpStatus.OK);
+        ResponseEntity response = new ResponseEntity(res, HttpStatus.OK);
         return response;
     }
 
@@ -162,9 +162,9 @@ public class GameController {
         String result = this.game.setPlayerChoice(setCardForm.getPlayer(), setCardForm.getOwnCard(), setCardForm.getGuessCard());
         if ("OK".equals(result)) {
             System.out.println("Player Choice:" + setCardForm);
-            return new ResponseEntity((Object)"OK", HttpStatus.OK);
+            return new ResponseEntity("OK", HttpStatus.OK);
         }
         System.out.println("Problem with choice:" + setCardForm);
-        return new ResponseEntity((Object)result, HttpStatus.CONFLICT);
+        return new ResponseEntity(result, HttpStatus.CONFLICT);
     }
 }
