@@ -22,7 +22,6 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                   document.getElementById("demo").innerHTML = xhttp.responseText;
                    callBack(xhttp.responseText)
                 }
             };
@@ -82,7 +81,7 @@
     </script>
 </head>
 
-<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; font-size:30px;">
+<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; font-size:30px; width:100%;">
 <h2 style="text-align:center;">DIXITHELPER</h2>
 
 <form ">
@@ -93,8 +92,12 @@ Válassz színt ezek közül:<br>
 <div id="colorsDiv" style="display:block;">
 </div>
 <br>
-<div id="demo" style="display:none;">
+<div style="display:block;position:relative;text-align:center;width:100%;">
+    <div style="display:block;text-align:center;background-color:gray;border: 10px solid #D0D0E4;border-right-color:#A0A0B4;border-bottom-color:#808094;width:200px;margin:auto;">
+        START
+    </div>
 </div>
+
 </body>
 
 </html> 
