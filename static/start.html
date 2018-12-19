@@ -9,6 +9,9 @@
             return this.split("").reverse().join("");
         }
 
+        var textColor="#D0D0E4";
+        var darkerTextColor="#A0A0B4";
+        var evenDarkerTextColor="#808094";
         var colorDivContent = "";
         var selectedColor = "";
         var running = false;
@@ -19,7 +22,6 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
-                   // Typical action to be performed when the document is ready:
                    document.getElementById("demo").innerHTML = xhttp.responseText;
                    callBack(xhttp.responseText)
                 }
@@ -43,9 +45,12 @@
         function selectColor(colName, divEl) {
             if (selectedColor!="") {
                 document.getElementById(selectedColor).style.borderWidth="2px";
+                document.getElementById(selectedColor).style.borderColor=textColor;
             }
             selectedColor=colName;
             divEl.style.borderWidth="10px";
+            divEl.style.borderBottomColor=evenDarkerTextColor;
+            divEl.style.borderRightColor=darkerTextColor;
         }
 
         function initColors(gameJson) {
