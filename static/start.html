@@ -5,9 +5,17 @@
 <title>DixitHelper induló oldal</title>
     <script type="text/javascript" >
     
+        String.prototype.reverse = function() {
+            return this.split("").reverse().join("");
+        }
+
         var colorDivContent = "";
         var selectedColor = "";
-        function sendRest(address, callBack) {
+        var running = false;
+        var lastVersion = -1;
+        var myAddress=window.location.href.reverse().substring(10).reverse();
+
+        function sendRest(service, callBack) {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
@@ -16,7 +24,7 @@
                    callBack(xhttp.responseText)
                 }
             };
-            xhttp.open("GET", address, true);
+            xhttp.open("GET", myAddress+service, true);
             xhttp.send();
         }
         
@@ -46,9 +54,25 @@
             Object.keys(game.availableColors).forEach(function(key, index) {addColorDiv(game.availableColors[key], key)});
             document.getElementById("colorsDiv").innerHTML = colorDivContent;
         }
-        
+
+        function checkVersion(version) {
+            if (version!=lastVersion) {
+                sendRest("getgame", initColors);
+                lastVersion = version;
+            }
+        }
+
+        function pollState() {
+            if (!running) {
+                running = true;
+                sendRest("getgameversion", checkVersion)
+                running = false;
+                setTimeout(function() {pollState();}, 500)
+            }
+        }
+
         function init() {
-            sendRest("http://192.168.0.94:8080/getgame", initColors);
+            pollState();
         }
     </script>
 </head>
