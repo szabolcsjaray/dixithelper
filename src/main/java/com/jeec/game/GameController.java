@@ -84,7 +84,13 @@ public class GameController {
 
     @RequestMapping(value={"/connect/{deviceHash}"})
     public String connectDevice(@PathVariable(value="deviceHash") String deviceHash) {
-        return this.game.addDevice(deviceHash);
+        String result = this.game.addDevice(deviceHash);
+        if ("OK".equals(result)) {
+            System.out.println("Added device: " + deviceHash);
+        } else {
+            System.out.println("Problem added device: "+deviceHash);
+        }
+        return result;
     }
 
     @PostMapping(value={"/addPlayer"})

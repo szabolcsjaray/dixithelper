@@ -14,19 +14,37 @@
         var evenDarkerTextColor="#808094";
         var colorDivContent = "";
         var selectedColor = "";
+        var deviceHash;
         var running = false;
         var lastVersion = -1;
+        var errorHappened = false;
         var myAddress=window.location.href.reverse().substring(10).reverse();
 
-        function sendRest(service, callBack) {
+        function alertIt(text,state) {
+            alert(text);
+            errorHappened = true;
+        }
+
+        function sendRest(service, callBack, errorCallBack = alertIt, post=false, postData=null) {
             var xhttp = new XMLHttpRequest();
+            errorHappened = false;
             xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                   callBack(xhttp.responseText)
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        callBack(xhttp.responseText)
+                    } else {
+                        errorCallBack(xhttp.responseText, this.status);
+                    }
                 }
             };
-            xhttp.open("GET", myAddress+service, true);
-            xhttp.send();
+            if (post) {
+                xhttp.open("POST", myAddress+service, true);
+                xhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                xhttp.send(JSON.stringify(postData));
+            } else {
+                xhttp.open("GET", myAddress+service, true);
+                xhttp.send();
+            }
         }
         
         function addColorDiv(colStr,colName) {
@@ -71,12 +89,41 @@
                 running = true;
                 sendRest("getgameversion", checkVersion)
                 running = false;
-                setTimeout(function() {pollState();}, 500)
             }
+            setTimeout(function() {pollState();}, 500);
+        }
+
+        function storeDeviceHash(returnedDevHash) {
+        }
+
+        function registerDevice() {
+            deviceHash = 10000 + Math.round(Math.random(2)*89000);
+            sendRest("connect/"+deviceHash,storeDeviceHash);
         }
 
         function init() {
+            registerDevice();
             pollState();
+        }
+
+        function playerAdded() {
+            selectedColor="";
+            alert("added.");
+        }
+
+        function registerPlayer() {
+            var playerEl = document.getElementById("playerName");
+            if (playerEl.value=="")
+                return;
+            if (selectedColor=="")
+                return;
+            running = true;
+            var playerData = new Object();
+            playerData.deviceHash = deviceHash;
+            playerData.playerName = playerEl.value;
+            playerData.colorName = selectedColor;
+            sendRest("addPlayer",playerAdded, alertIt, true,playerData);
+            running = false;
         }
     </script>
 </head>
@@ -93,7 +140,10 @@ Válassz színt ezek közül:<br>
 </div>
 <br>
 <div style="display:block;position:relative;text-align:center;width:100%;">
-    <div style="display:block;text-align:center;background-color:gray;border: 10px solid #D0D0E4;border-right-color:#A0A0B4;border-bottom-color:#808094;width:200px;margin:auto;">
+    <div style="display:block;text-align:center;background-color:gray;
+                border: 10px solid #D0D0E4;border-right-color:#A0A0B4;
+                border-bottom-color:#808094;width:200px;margin:auto;"
+                onClick="registerPlayer();">
         START
     </div>
 </div>

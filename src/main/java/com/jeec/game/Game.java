@@ -76,10 +76,11 @@ public class Game {
     private String checkIfNameOrColorExists(String playerName, String colorName) {
         for (String name : this.players.keySet()) {
             if (name.equals(playerName)) {
-                return "J\u00e1t\u00e9kos n\u00e9v m\u00e1r foglalt.";
+                return "A j\u00e1t\u00e9kos n\u00e9v ("+playerName+") m\u00e1r foglalt.";
             }
-            if (!this.players.get(name).getColor().getColorName().equals(colorName)) continue;
-            return "A sz\u00edn m\u00e1r foglalt.";
+            if (this.players.get(name).getColor().getColorName().equals(ColorCode.findColor(colorName).getColorName())) {
+                return "A sz\u00edn m\u00e1r foglalt.";
+            }
         }
         return "";
     }

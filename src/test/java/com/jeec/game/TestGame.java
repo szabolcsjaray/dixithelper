@@ -42,6 +42,15 @@ public class TestGame {
     }
 
     @Test
+    public void testAddSameColor() {
+        this.game.addDevice(DEV_HASH);
+        String res = this.game.addPlayer(DEV_HASH, "Joe", ColorCode.BLUE.name());
+        res = this.game.addPlayer(DEV_HASH, "Jill", ColorCode.BLUE.name());
+        Assert.assertNotEquals("OK", res);
+
+    }
+
+    @Test
     public void testAddPlayerNameWrongColor() {
         this.game.addDevice(DEV_HASH);
         String res = this.game.addPlayer(DEV_HASH, "Joe", "ilyen sz\u00edn nincs");
