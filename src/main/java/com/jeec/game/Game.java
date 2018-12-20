@@ -58,12 +58,22 @@ public class Game {
             return checkResult;
         }
         Player player = new Player(playerName, ColorCode.findColor(colorName), deviceHash, this.players.size());
+        uniquePlayerHash(player);
         this.availableColors.remove(ColorCode.findColor(colorName).name());
         this.players.put(playerName, player);
         this.devices.get(deviceHash).addPlayer(player);
         this.playerNames.put(player.getPlayerOrder(), playerName);
         ++this.stateVersion;
         return "OK";
+    }
+
+    private void uniquePlayerHash(Player playerToCheck) {
+        long sameHash;
+        long pHash = playerToCheck.getPlayerHash();
+        do {
+            playerToCheck.setPlayerHash(Player.createPlayerHash());
+            sameHash = this.players.values().stream().filter(player -> pHash==player.getPlayerHash()).count();
+        } while (sameHash>1);
     }
 
     private String checkIfDeviceExists(String deviceHash) {

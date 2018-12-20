@@ -15,10 +15,15 @@ public class Player {
     private int playerOrder;
     private int myChoice;
     private int playerId;
+    private long playerHash;
     private static int lastPlayerId = 0;
 
     static int getNextPlayerId() {
         return lastPlayerId++;
+    }
+
+    static long createPlayerHash() {
+        return Math.round(Math.random()*89999.0)+10000;
     }
 
     public Player(String name, ColorCode color, String deviceHash, int order) {
@@ -29,6 +34,11 @@ public class Player {
         this.myCard = -1;
         this.myChoice = -1;
         this.playerId = Player.getNextPlayerId();
+        this.playerHash = Player.createPlayerHash();
+    }
+
+    public void setPlayerHash(long playerHash) {
+        this.playerHash = playerHash;
     }
 
     public String getName() {
@@ -145,4 +155,9 @@ public class Player {
 	public static void resetPlayerIds() {
 		lastPlayerId = 0;
 	}
+
+    public long getPlayerHash() {
+        return playerHash;
+    }
+
 }

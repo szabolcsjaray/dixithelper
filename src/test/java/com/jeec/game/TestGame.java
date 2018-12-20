@@ -25,6 +25,8 @@ public class TestGame {
         Assert.assertEquals(res, "OK");
         Assert.assertEquals(ColorCode.values().length-1, game.getAvailableColors().size());
         Assert.assertNull(game.getAvailableColors().get(ColorCode.BLUE.name()));
+        long pHash = this.game.getPlayer(0).getPlayerHash();
+        Assert.assertTrue(pHash>=10000 && pHash<100000);
     }
 
     @Test
@@ -69,7 +71,6 @@ public class TestGame {
         this.game.addDevice(DEV_HASH);
         String res = this.game.addPlayer(DEV_HASH, "Joe", ColorCode.BLUE.name());
         Player player = this.game.getPlayer(0);
-        System.out.print(player);
         Assert.assertNotNull(player);
         Assert.assertEquals("Joe", player.getName());
     }
