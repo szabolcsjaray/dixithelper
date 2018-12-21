@@ -1,0 +1,109 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DixitHelper játék oldal</title>
+    <script type="text/javascript" >
+
+        String.prototype.reverse = function() {
+            return this.split("").reverse().join("");
+        }
+
+        var textColor="#D0D0E4";
+        var darkerTextColor="#A0A0B4";
+        var evenDarkerTextColor="#808094";
+        var deviceHash;
+        var running = false;
+        var lastVersion = -1;
+        var errorHappened = false;
+        var myAddress=window.location.href.slice(0,window.location.href.indexOf('?')-9);
+        myAddress.reverse().substring(10).reverse();
+        var playerData = new Object();
+        var playerHash;
+        var me = null;
+
+
+        function alertIt(text,state) {
+            alert(text);
+            errorHappened = true;
+        }
+
+        function sendRest(service, callBack, errorCallBack = alertIt, post=false, postData=null) {
+            var xhttp = new XMLHttpRequest();
+            errorHappened = false;
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        callBack(xhttp.responseText)
+                    } else {
+                        errorCallBack(xhttp.responseText, this.status);
+                    }
+                }
+            };
+            if (post) {
+                xhttp.open("POST", myAddress+service, true);
+                xhttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                xhttp.send(JSON.stringify(postData));
+            } else {
+                xhttp.open("GET", myAddress+service, true);
+                xhttp.send();
+            }
+        }
+
+        function updateGame(gameJson) {
+            game = JSON.parse(gameJson);
+            if (me==null) {
+                Object.keys(game.players).forEach(function(pName) {
+                    if (game.players[pName].playerHash==playerHash) {
+                        me = game.players[pName];
+                        alert(me.name);
+                    }
+                });
+            }
+        }
+
+        function checkVersion(version) {
+            if (version!=lastVersion) {
+                sendRest("getgame", updateGame);
+                lastVersion = version;
+            }
+        }
+
+        function pollState() {
+            if (!running) {
+                running = true;
+                sendRest("getgameversion", checkVersion)
+                running = false;
+            }
+            setTimeout(function() {pollState();}, 500);
+        }
+
+        function readPlayerFromURL() {
+            var url = new URL(window.location.href);
+            playerHash = url.searchParams.get("h");
+        }
+
+        function init() {
+            readPlayerFromURL();
+
+            pollState();
+        }
+    </script>
+</head>
+
+<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; font-size:30px; width:100%;">
+<h3 style="text-align:center;">DIXITHELPER</h2>
+
+<br>
+<div style="display:block;position:relative;text-align:center;width:100%;">
+    <div style="display:block;text-align:center;background-color:gray;
+                border: 10px solid #D0D0E4;border-right-color:#A0A0B4;
+                border-bottom-color:#808094;width:200px;margin:auto;"
+                onClick="registerPlayer();">
+        START
+    </div>
+</div>
+
+</body>
+
+</html>

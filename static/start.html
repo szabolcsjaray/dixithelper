@@ -19,6 +19,7 @@
         var lastVersion = -1;
         var errorHappened = false;
         var myAddress=window.location.href.reverse().substring(10).reverse();
+        var playerData = new Object();
 
         function alertIt(text,state) {
             alert(text);
@@ -106,9 +107,25 @@
             pollState();
         }
 
+        function getPlayerHash() {
+            var pHash;
+            Object.keys(game.players).forEach(function(pName) {
+                if (pName==playerData.playerName) {
+                    pHash=game.players[pName].playerHash;
+                }
+            });
+            return pHash;
+        }
+
+        function goToGame(gameJson) {
+            game = JSON.parse(gameJson);
+            var myHash = getPlayerHash();
+            window.location.href = myAddress+"game.html?h="+myHash;
+        }
+
         function playerAdded() {
+            sendRest("getgame", goToGame);
             selectedColor="";
-            alert("added.");
         }
 
         function registerPlayer() {
@@ -118,7 +135,6 @@
             if (selectedColor=="")
                 return;
             running = true;
-            var playerData = new Object();
             playerData.deviceHash = deviceHash;
             playerData.playerName = playerEl.value;
             playerData.colorName = selectedColor;
@@ -150,4 +166,4 @@ Válassz színt ezek közül:<br>
 
 </body>
 
-</html> 
+</html>
