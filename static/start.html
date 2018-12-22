@@ -9,6 +9,32 @@
             return this.split("").reverse().join("");
         }
 
+        function getEl(elId) {
+            return document.getElementById(elId);
+        }
+
+        function setCookie(cname, cvalue, exdays) {
+              var d = new Date();
+              d.setTime(d.getTime() + (exdays*24*60*60*1000));
+              var expires = "expires="+ d.toUTCString();
+              document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
         var textColor="#D0D0E4";
         var darkerTextColor="#A0A0B4";
         var evenDarkerTextColor="#808094";
@@ -97,13 +123,27 @@
         function storeDeviceHash(returnedDevHash) {
         }
 
-        function registerDevice() {
-            deviceHash = 10000 + Math.round(Math.random(2)*89000);
-            sendRest("connect/"+deviceHash,storeDeviceHash);
+        function checkDeviceAndRegisterIfNeeded(gameJson) {
+            deviceHash = getCookie("dixitDevice");
+            if (deviceHash=="") {
+                deviceHash = 10000 + Math.round(Math.random(2)*89000);
+                setCookie("dixitDevice", ""+deviceHash, 31);
+            }
+            game = JSON.parse(gameJson);
+            var foundDevice = false;
+            Object.keys(game.devices).forEach(function(deviceKey) {
+                if (deviceKey==deviceHash) {
+                    foundDevice=true;
+                }
+            });
+            if (!foundDevice) {
+                sendRest("connect/"+deviceHash,storeDeviceHash);
+            }
         }
 
         function init() {
-            registerDevice();
+            getEl("playerName").value="";
+            sendRest("getgame",checkDeviceAndRegisterIfNeeded);
             pollState();
         }
 
