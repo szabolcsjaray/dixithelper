@@ -125,6 +125,17 @@ public class GameController {
         return response;
     }
 
+    @RequestMapping(value={"/playerDown/{playerId}"})
+    public ResponseEntity<Player> playerDown(@PathVariable(value="playerId") int playerId) {
+        Player player = this.game.getPlayer(playerId);
+        if (player == null) {
+            return new ResponseEntity(player, HttpStatus.NOT_FOUND);
+        }
+        this.game.playerDown(player);
+        ResponseEntity response = new ResponseEntity(player, HttpStatus.OK);
+        return response;
+    }
+
     @RequestMapping(value={"/conflictreset/{playerId}"})
     public ResponseEntity<Integer> conflictReset(@PathVariable(value="playerId") int playerId) {
         Player player = this.game.getPlayer(playerId);

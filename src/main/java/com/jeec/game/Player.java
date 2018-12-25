@@ -7,7 +7,7 @@ public class Player {
     private String name;
     private int point;
     private int roundPoint;
-    private boolean teller;
+    private boolean teller = false;
     private PlayerState state = PlayerState.WAITING_FOR_GAME_START;
     private ColorCode color;
     private String deviceHash;

@@ -319,6 +319,24 @@ public class Game {
         }
     }
 
+    public void playerDown(Player player) {
+        if (!this.playersLocked) {
+            Player otherPlayer;
+            this.playersLocked = true;
+            if (player.getPlayerOrder() < playerNames.size()-1 && (otherPlayer = this.findPlayerByOrder(player.getPlayerOrder() + 1)) != null) {
+                int pOrder = player.getPlayerOrder();
+                player.increasePlayerOrder();
+                otherPlayer.decreasePlayerOrder();
+                this.playerNames.remove(pOrder);
+                this.playerNames.remove(pOrder + 1);
+                this.playerNames.put(new Integer(pOrder + 1), player.getName());
+                this.playerNames.put(new Integer(pOrder), otherPlayer.getName());
+                ++this.stateVersion;
+            }
+            this.playersLocked = false;
+        }
+    }
+
     public Player findPlayerByOrder(int order) {
         for (String name : this.players.keySet()) {
             Player player = this.players.get(name);
