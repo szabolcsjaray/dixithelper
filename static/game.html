@@ -86,6 +86,8 @@
         var darkerTextColor="#A0A0B4";
         var evenDarkerTextColor="#808094";
         var deviceHash;
+        var myCard = -1;
+        var myChoice = -1;
         var running = false;
         var lastVersion = -1;
         var errorHappened = false;
@@ -127,10 +129,32 @@
             return document.getElementById(elId);
         }
 
-        function updateState() {
+        function hideEl(elId) {
+            getEl(elId).style.display = "none";
+        }
+
+        function showEl(elId, displayMode="block") {
+            getEl(elId).style.display = displayMode;
+        }
+
+        function updateStateAndButtons() {
+            if (me==null) {
+                return;
+            }
             var stateDiv = getEl("state");
-            if (me!=null && me.state=="WAITING_FOR_GAME_START") {
+            if (me.state=="WAITING_FOR_GAME_START") {
                 stateDiv.innerHTML="Ha mindenki belépett, nyomd meg a Start gombot.";
+                showEl("startButton", "inline-block");
+                showEl("newPlayerButton", "inline-block");
+                hideEl("goOnButton");
+            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+                hideEl("startButton");
+                hideEl("newPlayerButton");
+                if (myCard==-1) {
+                    stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
+                } else if (!me.teller) {
+                    stateDiv.innerHTML="Jelöld meg a lapot, amelyikről szerinted a mesélő beszélt!";
+                }
             }
         }
 
@@ -190,7 +214,7 @@
                     }
                 });
             }
-            updateState();
+            updateStateAndButtons();
             updateCards();
             updatePlayers();
         }
@@ -234,6 +258,17 @@
             return true;
         }
 
+        function startSuceeded(response) {
+            hideEl("startButton");
+            hideEl("newPlayerButton");
+        }
+
+        function startGame() {
+            if (confirm("Biztosan mindenki belépett a játékba?")) {
+                sendRest("startgame",startSuceeded);
+            }
+        }
+
         function init() {
             if (readDeviceHashAndPlayer()) {
                 pollState();
@@ -250,14 +285,25 @@
 
 <br>
 <div style="display:block;position:relative;text-align:center;width:100%;">
-    <div style="display:block;text-align:center;background-color:gray;
+    <div id="startButton" style="display:inline-block;text-align:center;background-color:gray;
+                border: 10px solid #D0D0E4;border-right-color:#A0A0B4;font-weight:bold;;
+                border-bottom-color:#808094;width:200px;margin:auto;color:white;"
+                onClick="startGame();">
+        START
+    </div>
+    <div id="newPlayerButton" style="display:inline-block;text-align:center;background-color:gray;
                 border: 10px solid #D0D0E4;border-right-color:#A0A0B4;font-weight:bold;;
                 border-bottom-color:#808094;width:200px;margin:auto;color:white;"
                 onClick="registerPlayer();">
-        START
+        + JÁTÉKOS
+    </div>
+    <div id="goOnButton" style="display:none;text-align:center;background-color:gray;
+                border: 10px solid #D0D0E4;border-right-color:#A0A0B4;font-weight:bold;;
+                border-bottom-color:#808094;width:200px;margin:auto;color:white;"
+                onClick="registerPlayer();">
+        TOVÁBB
     </div>
 </div>
 
 </body>
-
 </html>
