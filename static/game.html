@@ -139,6 +139,16 @@
             getEl(elId).style.display = displayMode;
         }
 
+        function countReady() {
+            var count = 0;
+            Object.keys(game.players).forEach(function(pName) {
+               if (game.players[pName].state=="WAITING_FOR_OTHERS_CHOICE") {
+                   count++;
+               }
+            });
+            return count;
+        }
+
         function updateStateAndButtons() {
             if (me==null) {
                 return;
@@ -152,12 +162,33 @@
             } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
                 hideEl("startButton");
                 hideEl("newPlayerButton");
+                hideEl("goOnButton");
                 if (myCard==-1) {
                     stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
                 } else if (!me.teller) {
                     stateDiv.innerHTML="Jelöld meg a lapot, amelyikről szerinted a mesélő beszélt!";
                 }
+            } else if (me.state=="WAITING_FOR_OTHERS_CHOICE") {
+                hideEl("startButton");
+                hideEl("newPlayerButton");
+                hideEl("goOnButton");
+                var ready=countReady();
+                stateDiv.innerHTML="Megvárjuk, hogy a többiek is bejelöljék a kártyákat... (" +
+                                   ready + "/" + Object.keys(game.players).length + ")";
             }
+        }
+
+        function cardsSet(response) {
+            alert("Cards are set.");
+        }
+
+        function sendCards() {
+            var choices = new Object();
+            choices.ownCard = myCard;
+            choices.guessCard = myChoice;
+            choices.player = me.name;
+            sendRest("setcards",cardsSet, alertIt, true,choices);
+            return;
         }
 
         function cardClicked(cardId) {
@@ -165,12 +196,14 @@
             if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
                 if (myCard==-1) {
                     myCard = cardId;
+                    if (me.teller) {
+                        sendCards();
+                    }
                     updateCards();
                     updateStateAndButtons();
                 } else if (!me.teller) {
                     myChoice = cardId;
-                    //sendRest("",)
-                    alert("my choice");
+                    sendCards();
                 }
             }
         }
@@ -190,6 +223,9 @@
                     "<h3 style=\"margin:0;font-size:60px;\" >" + (i+1) + "</h3>";
                 if (i==myCard) {
                     cardsInner += getRabbit(40,"black","-185px", "5px", "white", "20px", "block");
+                }
+                if (i==myChoice) {
+                    cardsInner += "<img src=\"pict/circle.svg\" style=\"top:10px;right:10px;width:35px;height:35px;position:absolute;display:block;\">";
                 }
                 cardsInner += "</div>\n";
             }
@@ -263,6 +299,8 @@
                 if (game.players[pName].playerHash==playerHash) {
                     me = game.players[pName];
                     getEl("dixitHeader").innerHTML="DIXITHELPER -- " +pName;
+                    myCard = me.myCard;
+                    myChoice = me.myChoice;
                 }
             });
             updateOrder();
