@@ -98,6 +98,7 @@
         var playerHash;
         var me = null;
         var pOrder = new Array();
+        var hideCardSigns = false;
 
 
         function alertIt(text,state) {
@@ -169,6 +170,7 @@
                     stateDiv.innerHTML="Jelöld meg a lapot, amelyikről szerinted a mesélő beszélt!";
                 }
             } else if (me.state=="WAITING_FOR_OTHERS_CHOICE") {
+                checkOtherPlayers();
                 hideEl("startButton");
                 hideEl("newPlayerButton");
                 hideEl("goOnButton");
@@ -178,8 +180,30 @@
             }
         }
 
-        function cardsSet(response) {
-            alert("Cards are set.");
+        function findNextPlayer() {
+            var nextPlayer = null;
+            Object.keys(game.players).forEach( function(pName) {
+               if (game.players[pName].deviceHash==deviceHash &&
+                   game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE") {
+                   nextPlayer=game.players[pName];
+               }
+            });
+            return nextPlayer;
+        }
+
+        function hideSigns() {
+            hideCardSigns = true;
+            updateCards();
+        }
+
+        function checkOtherPlayers(response) {
+            var nextPlayer = findNextPlayer();
+            if (nextPlayer!=null) {
+                hideSigns();
+                alert("Add át az mobilt/tabletet/laptopot a "+nextPlayer.name+"-nak/nek!\n"+
+                      "Ha megtörtént, nyomd meg az OK-t");
+                window.location.href=myAddress+"game.html?h="+nextPlayer.playerHash;
+            }
         }
 
         function sendCards() {
@@ -187,7 +211,7 @@
             choices.ownCard = myCard;
             choices.guessCard = myChoice;
             choices.player = me.name;
-            sendRest("setcards",cardsSet, alertIt, true,choices);
+            sendRest("setcards",checkOtherPlayers, alertIt, true,choices);
             return;
         }
 
@@ -221,11 +245,13 @@
                     "onClick=\"cardClicked("+i+")\" >" +
                    //"<h3 style=\"margin:0;font-size:60px;\" onClick=\"cardClicked("+i+")\">" + (i+1) + "</h3>" +
                     "<h3 style=\"margin:0;font-size:60px;\" >" + (i+1) + "</h3>";
-                if (i==myCard) {
-                    cardsInner += getRabbit(40,"black","-185px", "5px", "white", "20px", "block");
-                }
-                if (i==myChoice) {
-                    cardsInner += "<img src=\"pict/circle.svg\" style=\"top:10px;right:10px;width:35px;height:35px;position:absolute;display:block;\">";
+                if (!hideCardSigns) {
+	                if (i==myCard) {
+	                    cardsInner += getRabbit(40,"black","-185px", "5px", "white", "10px", "block");
+	                }
+	                if (i==myChoice) {
+	                    cardsInner += "<img src=\"pict/circle.svg\" style=\"top:10px;right:10px;width:35px;height:35px;position:absolute;display:block;\">";
+	                }
                 }
                 cardsInner += "</div>\n";
             }
@@ -254,9 +280,9 @@
                                 "line-height:50px;font-weight:bold;\">";
                 playerInner += "<div style=\"width:80%;display:inline-block;margin:0;\">"
                 if (pName==me.name) {
-                    playerInner += getRabbit(40,"black","5px", "0px", "white", "20px");
+                    playerInner += getRabbit(40,"black","5px", "0px", "white", "10px");
                 } else if (player.deviceHash==me.deviceHash) {
-                    playerInner += getRabbit(40,"gray","5px", "0px", "white", "20px");
+                    playerInner += getRabbit(40,"gray","5px", "0px", "white", "10px");
                 } else {
                     playerInner += "&nbsp; ";
                 }
