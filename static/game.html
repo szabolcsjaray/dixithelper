@@ -15,7 +15,7 @@
          "width=\"SIZE\" " +
          "height=\"SIZE\" " +
          "viewBox=\"0 0 600 600\" " +
-         "style=\"position:relative;top:TOP;left:LEFT;display:DISPLAY;\">" +
+         "style=\"position:absolute;top:TOP;left:LEFT;display:DISPLAY;\">" +
          "<path id=\"rabbit\" d=\"m 335.94313,30.576451 c -9.79312,-0.146115 -17.39091,4.439466 -17.39091,13.789758 " +
                      "0,11.508038 -2.91019,60.415461 1.40532,76.238951 4.31553,15.82355 21.58583,38.97215 34.51834," +
                      "54.67597 10.06946,12.22726 4.34772,41.69626 4.34772,56.0813 0,14.38499 -2.89751,25.9107 " +
@@ -45,6 +45,11 @@
                      " -15.86265,-21.58444 -28.80918,-24.461458 -2.42749,-0.539415 -4.76669,-0.800692 -7.02665,-0.834399 z\""+
                      " style=\"fill:COLOR;fill-opacity:1;stroke:STROKE;stroke-width:STROKE-WIDTH;\" />" +
          "</svg>";
+         var circleSVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" "+
+                     " style=\"POS;width:SIZE;height:SIZE;position:absolute;display:block;\">" +
+                     "<circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"COLOR\" stroke-width=\"4\" fill=\"none\" />" +
+                     "</svg>";
+        const TOP_RIGHT_POS ="TOP-RIGHT"
 
         String.prototype.reverse = function() {
             return this.split("").reverse().join("");
@@ -81,6 +86,16 @@
                 replace("STROKE-WIDTH",strokeWidth).
                 replace("STROKE",stroke).
                 replace("DISPLAY",display);
+        }
+
+        function getCircle(color,size,pos) {
+            var circle = circleSVG.replace("COLOR",color).replace(/SIZE/g,size);
+            if (pos==TOP_RIGHT_POS) {
+                circle = circle.replace("POS","top:10px;right:10px");
+            } else {
+                circle = circle.replace("POS", pos);
+            }
+            return circle;
         }
 
         var textColor="#D0D0E4";
@@ -154,16 +169,15 @@
             if (me==null) {
                 return;
             }
+            hideEl("startButton");
+            hideEl("newPlayerButton");
+            hideEl("goOnButton");
             var stateDiv = getEl("state");
             if (me.state=="WAITING_FOR_GAME_START") {
                 stateDiv.innerHTML="Ha mindenki belépett, és jó a sorrend, nyomd meg a Start gombot.";
                 showEl("startButton", "inline-block");
                 showEl("newPlayerButton", "inline-block");
-                hideEl("goOnButton");
             } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
-                hideEl("startButton");
-                hideEl("newPlayerButton");
-                hideEl("goOnButton");
                 if (myCard==-1) {
                     stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
                 } else if (!me.teller) {
@@ -171,12 +185,12 @@
                 }
             } else if (me.state=="WAITING_FOR_OTHERS_CHOICE") {
                 checkOtherPlayers();
-                hideEl("startButton");
-                hideEl("newPlayerButton");
-                hideEl("goOnButton");
                 var ready=countReady();
                 stateDiv.innerHTML="Megvárjuk, hogy a többiek is bejelöljék a kártyákat... (" +
                                    ready + "/" + Object.keys(game.players).length + ")";
+            } else if (me.state=="ROUND_ENDED") {
+                showEl("goOnButton");
+                stateDiv.innerHTML="Kör vége, ha mindenki megnézte az eredményt, akkor valaki nyomja meg a tovább gombot!";
             }
         }
 
@@ -184,7 +198,8 @@
             var nextPlayer = null;
             Object.keys(game.players).forEach( function(pName) {
                if (game.players[pName].deviceHash==deviceHash &&
-                   game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE") {
+                   game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE" &&
+                   pName!=me.name) {
                    nextPlayer=game.players[pName];
                }
             });
@@ -211,7 +226,7 @@
             choices.ownCard = myCard;
             choices.guessCard = myChoice;
             choices.player = me.name;
-            sendRest("setcards",checkOtherPlayers, alertIt, true,choices);
+            sendRest("setcards",doNothing, alertIt, true,choices);
             return;
         }
 
@@ -247,11 +262,25 @@
                     "<h3 style=\"margin:0;font-size:60px;\" >" + (i+1) + "</h3>";
                 if (!hideCardSigns) {
 	                if (i==myCard) {
-	                    cardsInner += getRabbit(40,"black","-185px", "5px", "white", "10px", "block");
+	                    cardsInner += getRabbit(40,"black","10px", "5px", "white", "10px", "block");
 	                }
 	                if (i==myChoice) {
-	                    cardsInner += "<img src=\"pict/circle.svg\" style=\"top:10px;right:10px;width:35px;height:35px;position:absolute;display:block;\">";
+	                    cardsInner += getCircle("black","35px",TOP_RIGHT_POS);
+	                    //cardsInner += "<img src=\"pict/circle.svg\" style=\"top:10px;right:10px;width:35px;height:35px;position:absolute;display:block;\">";
 	                }
+                }
+                if (game.state=="ROUND_ENDED" || game.state=="GAME_ENDED") {
+                    var chooseX = 10;
+                    Object.keys(game.players).forEach(function(pName) {
+                        var player = game.players[pName];
+                        if (player.myCard==i) {
+                            cardsInner += getRabbit(40,player.colorStr,"150px", "5px", "white", "10px", "block");
+                        }
+                        if (player.myChoice==i) {
+                            cardsInner += getCircle(player.colorStr,"35px","bottom:12px;right:"+chooseX+"px");
+                            chooseX+=10;
+                        }
+                    });
                 }
                 cardsInner += "</div>\n";
             }
@@ -278,7 +307,8 @@
                                 ";color:black;margin:10px;display:inline-block;"+
                                 "text-align:left;" +
                                 "line-height:50px;font-weight:bold;\">";
-                playerInner += "<div style=\"width:80%;display:inline-block;margin:0;\">"
+                playerInner += "<div style=\"width:70%;display:inline-block;margin:0;position:relative;"+
+                               "padding-left:40px;\">"
                 if (pName==me.name) {
                     playerInner += getRabbit(40,"black","5px", "0px", "white", "10px");
                 } else if (player.deviceHash==me.deviceHash) {
@@ -294,7 +324,12 @@
                 playerInner += "</div>";
                 playerInner += "<div style=\"text-align:right;width:20%;display:inline-block;margin:0;\">";
                 if (player.state!="WAITING_FOR_GAME_START") {
-                    playerInner += player.point+"&nbsp;";
+                    if (player.state=="ROUND_ENDED") {
+                        playerInner += (player.point-player.roundPoint) + "+" +
+                                       player.roundPoint +"="+player.point+"&nbsp;";
+                    } else {
+                        playerInner += player.point+"&nbsp;";
+                    }
                 } else {
                     if (i!=0) {
                         playerInner += "<img src=\"pict/ArrowUp.svg\" onClick=\"playerUp("+player.playerId+");\"> &nbsp;";
@@ -324,7 +359,7 @@
             Object.keys(game.players).forEach(function(pName) {
                 if (game.players[pName].playerHash==playerHash) {
                     me = game.players[pName];
-                    getEl("dixitHeader").innerHTML="DIXITHELPER -- " +pName;
+                    getEl("dixitHeader").innerHTML="DIXITHELPER -- " +pName + " -- kör: " + game.round;
                     myCard = me.myCard;
                     myChoice = me.myChoice;
                 }
@@ -389,6 +424,10 @@
             window.location.href = myAddress+"start.html";
         }
 
+        function nextRound() {
+            sendRest("nextRound",doNothing);
+        }
+
         function init() {
             if (readDeviceHashAndPlayer()) {
                 pollState();
@@ -420,7 +459,7 @@
     <div id="goOnButton" style="display:none;text-align:center;background-color:gray;
                 border: 10px solid #D0D0E4;border-right-color:#A0A0B4;font-weight:bold;;
                 border-bottom-color:#808094;width:200px;margin:auto;color:white;"
-                onClick="registerPlayer();">
+                onClick="nextRound();">
         TOVÁBB
     </div>
 </div>
