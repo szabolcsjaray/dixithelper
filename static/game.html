@@ -175,11 +175,18 @@
             var stateDiv = getEl("state");
             if (me.state=="WAITING_FOR_GAME_START") {
                 stateDiv.innerHTML="Ha mindenki belépett, és jó a sorrend, nyomd meg a Start gombot.";
-                showEl("startButton", "inline-block");
+                if (Object.keys(game.players).length>2) {
+                    showEl("startButton", "inline-block");
+                }
                 showEl("newPlayerButton", "inline-block");
-            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE"|| 
+                       me.state=="CONFLICT_RESET") {
                 if (myCard==-1) {
-                    stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
+                    if (me.state=="CONFLICT_RESET") {
+                        stateDiv.innerHTML="Valaki rosszul jelölt, kérlek (ismét) jelöld a saját lapodat!";
+                    } else {
+                        stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
+                    }
                 } else if (!me.teller) {
                     stateDiv.innerHTML="Jelöld meg a lapot, amelyikről szerinted a mesélő beszélt!";
                 }
@@ -198,7 +205,8 @@
             var nextPlayer = null;
             Object.keys(game.players).forEach( function(pName) {
                if (game.players[pName].deviceHash==deviceHash &&
-                   game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE" &&
+                   (game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE" ||
+                    game.players[pName].state=="CONFLICT_RESET") &&
                    pName!=me.name) {
                    nextPlayer=game.players[pName];
                }
@@ -232,7 +240,8 @@
 
         function cardClicked(cardId) {
             if (me==null) return;
-            if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+            if (me.state=="GAME_WAITING_FOR_MY_CHOICE" || 
+                me.state=="CONFLICT_RESET") {
                 if (myCard==-1) {
                     myCard = cardId;
                     if (me.teller) {
@@ -436,7 +445,8 @@
     </script>
 </head>
 
-<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; font-size:30px; width:100%;">
+<body onLoad="init();" style="text-align:center; background-color:#101040; color:#D0D0E4; 
+                              font-size:30px; width:100%; font-family:Arial;">
 <h3 id="dixitHeader" style="text-align:center;">DIXITHELPER -- </h2>
 <div id="state"></div>
 <div id="cards"></div><br>

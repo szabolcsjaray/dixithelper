@@ -178,7 +178,7 @@ public class Game {
         if (this.checkConflictingMyCards()) {
             this.state = GameState.CONFLICTING_CHOICES;
             for (String name : this.players.keySet()) {
-                this.players.get(name).setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
+                this.players.get(name).setState(PlayerState.CONFLICT_RESET);
                 this.players.get(name).setMyCard(-1);
                 this.players.get(name).setMyChoice(-1);
             }
@@ -207,7 +207,8 @@ public class Game {
         Player player;
         for (String name : this.players.keySet()) {
             player = this.players.get(name);
-            if (player.getState() != PlayerState.GAME_WAITING_FOR_MY_CHOICE) continue;
+            if (player.getState() != PlayerState.GAME_WAITING_FOR_MY_CHOICE &&
+                player.getState() != PlayerState.CONFLICT_RESET) continue;
             this.state = GameState.WAITING_FOR_CHOICES;
             return;
         }

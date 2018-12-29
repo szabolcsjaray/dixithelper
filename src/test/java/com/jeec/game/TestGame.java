@@ -169,9 +169,9 @@ public class TestGame {
         String res = this.game.setPlayerChoice("Joe", 1, -1);
         Assert.assertNotEquals("OK", res);
         Assert.assertEquals(GameState.CONFLICTING_CHOICES, this.game.getState());
-        Assert.assertEquals(PlayerState.GAME_WAITING_FOR_MY_CHOICE, this.game.getPlayer(0).getState());
-        Assert.assertEquals(PlayerState.GAME_WAITING_FOR_MY_CHOICE, this.game.getPlayer(1).getState());
-        Assert.assertEquals(PlayerState.GAME_WAITING_FOR_MY_CHOICE, this.game.getPlayer(2).getState());
+        Assert.assertEquals(PlayerState.CONFLICT_RESET, this.game.getPlayer(0).getState());
+        Assert.assertEquals(PlayerState.CONFLICT_RESET, this.game.getPlayer(1).getState());
+        Assert.assertEquals(PlayerState.CONFLICT_RESET, this.game.getPlayer(2).getState());
     }
 
     @Test
@@ -182,12 +182,12 @@ public class TestGame {
         res = this.game.setPlayerChoice("Joe", 1, -1);
         Assert.assertNotEquals("OK", res);
         Assert.assertEquals(GameState.CONFLICTING_CHOICES, this.game.getState());
-        res = this.game.setPlayerChoice("Jack", 0, 2);
+        res = this.game.setPlayerChoice("Jack", 1, -1);
         Assert.assertEquals("OK", res);
         Assert.assertEquals(GameState.WAITING_FOR_CHOICES, this.game.getState());
-        Assert.assertEquals(PlayerState.GAME_WAITING_FOR_MY_CHOICE, this.game.getPlayer(0).getState());
+        Assert.assertEquals(PlayerState.CONFLICT_RESET, this.game.getPlayer(0).getState());
         Assert.assertEquals(PlayerState.WAITING_FOR_OTHERS_CHOICE, this.game.getPlayer(1).getState());
-        Assert.assertEquals(PlayerState.GAME_WAITING_FOR_MY_CHOICE, this.game.getPlayer(2).getState());
+        Assert.assertEquals(PlayerState.CONFLICT_RESET, this.game.getPlayer(2).getState());
     }
 
     @Test
