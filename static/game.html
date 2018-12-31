@@ -47,7 +47,8 @@
          "</svg>";
          var circleSVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\" "+
                      " style=\"POS;width:SIZE;height:SIZE;position:absolute;display:block;\">" +
-                     "<circle cx=\"10\" cy=\"10\" r=\"8\" stroke=\"COLOR\" stroke-width=\"4\" fill=\"none\" />" +
+                     "<circle cx=\"10\" cy=\"10\" r=\"7\" stroke=\"white\" stroke-width=\"5\" fill=\"none\" />" +
+                     "<circle cx=\"10\" cy=\"10\" r=\"7\" stroke=\"COLOR\" stroke-width=\"4\" fill=\"none\" />" +
                      "</svg>";
         const TOP_RIGHT_POS ="TOP-RIGHT"
 
@@ -114,6 +115,8 @@
         var me = null;
         var pOrder = new Array();
         var hideCardSigns = false;
+        var myLastState = "JUST_ARRIVED";
+        var whileSettingCards = false;
 
 
         function alertIt(text,state) {
@@ -188,7 +191,9 @@
                         stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
                     }
                 } else if (!me.teller) {
-                    stateDiv.innerHTML="Jelöld meg a lapot, amelyikről szerinted a mesélő beszélt!";
+                    stateDiv.innerHTML="Jelöld meg a lapot" +
+                    (me.state=="CONFLICT_RESET" ? " (ismét)":"") +
+                    ", amelyikről szerinted a mesélő beszélt!";
                 }
             } else if (me.state=="WAITING_FOR_OTHERS_CHOICE") {
                 checkOtherPlayers();
@@ -230,11 +235,12 @@
         }
 
         function sendCards() {
+            whileSettingCards = false;
             var choices = new Object();
             choices.ownCard = myCard;
             choices.guessCard = myChoice;
             choices.player = me.name;
-            sendRest("setcards",doNothing, alertIt, true,choices);
+            sendRest("setcards",doNothing, doNothing, true,choices);
             return;
         }
 
@@ -246,10 +252,12 @@
                     myCard = cardId;
                     if (me.teller) {
                         sendCards();
+                    } else {
+                        whileSettingCards = true;
                     }
                     updateCards();
                     updateStateAndButtons();
-                } else if (!me.teller) {
+                } else if ((me.myCard!=cardId) && !me.teller) {
                     myChoice = cardId;
                     sendCards();
                 }
@@ -316,7 +324,7 @@
                                 ";color:black;margin:10px;display:inline-block;"+
                                 "text-align:left;" +
                                 "line-height:50px;font-weight:bold;\">";
-                playerInner += "<div style=\"width:70%;display:inline-block;margin:0;position:relative;"+
+                playerInner += "<div style=\"width:55%;display:inline-block;margin:0;position:relative;"+
                                "padding-left:40px;\">"
                 if (pName==me.name) {
                     playerInner += getRabbit(40,"black","5px", "0px", "white", "10px");
@@ -331,7 +339,7 @@
                                    " style=\"width:40px;height:40px;top:5px;position:relative;\"> ";
                 }
                 playerInner += "</div>";
-                playerInner += "<div style=\"text-align:right;width:20%;display:inline-block;margin:0;\">";
+                playerInner += "<div style=\"text-align:right;width:35%;display:inline-block;margin:0;font-size:30px;\">";
                 if (player.state!="WAITING_FOR_GAME_START") {
                     if (player.state=="ROUND_ENDED") {
                         playerInner += (player.point-player.roundPoint) + "+" +
@@ -367,10 +375,21 @@
             game = JSON.parse(gameJson);
             Object.keys(game.players).forEach(function(pName) {
                 if (game.players[pName].playerHash==playerHash) {
+                    if (me!=null) {
+                        myLastState=me.state;
+                    }
                     me = game.players[pName];
-                    getEl("dixitHeader").innerHTML="DIXITHELPER -- " +pName + " -- kör: " + game.round;
-                    myCard = me.myCard;
-                    myChoice = me.myChoice;
+                    if (myLastState=="ROUND_ENDED" && me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+                        myCard=-1;
+                        myChoice=-1;
+                    }
+                    getEl("dixitHeader").innerHTML="DIXITHELPER -- " +
+                                                   getRabbit(80,me.colorStr,"10px", "10px", "white", "10px", "inline-block") +
+                                                   pName + " -- kör: " + game.round;
+                    if (!whileSettingCards) {
+                        myCard = me.myCard;
+                        myChoice = me.myChoice;
+                    }
                 }
             });
             updateOrder();

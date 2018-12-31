@@ -20,7 +20,6 @@ public class Game {
 	private int round;
     int tellerOrder = -1;
     private boolean playersLocked;
-    private TreeMap<Integer, String> playerNames = new TreeMap();
 
     public Game() {
     	Player.resetPlayerIds();
@@ -62,7 +61,6 @@ public class Game {
         this.availableColors.remove(ColorCode.findColor(colorName).name());
         this.players.put(playerName, player);
         this.devices.get(deviceHash).addPlayer(player);
-        this.playerNames.put(player.getPlayerOrder(), playerName);
         ++this.stateVersion;
         return "OK";
     }
@@ -174,6 +172,7 @@ public class Game {
             return "Nincs ilyen j\u00e1t\u00e9kos.";
         }
         Player player = this.players.get(playerName);
+        ++this.stateVersion;
         player.choose(myCard, myChoice);
         if (this.checkConflictingMyCards()) {
             this.state = GameState.CONFLICTING_CHOICES;
@@ -186,7 +185,6 @@ public class Game {
             return "T\u00f6bben jel\u00f6lt\u00e9tek ugyanazt saj\u00e1tnak, ellen\u0151rizz\u00e9tek le!";
         }
         this.checkAndSetRoundEnd();
-        ++this.stateVersion;
         return "OK";
     }
 
@@ -304,16 +302,13 @@ public class Game {
 
     public void playerUp(Player player) {
         if (!this.playersLocked) {
-            Player otherPlayer;
             this.playersLocked = true;
-            if (player.getPlayerOrder() > 0 && (otherPlayer = this.findPlayerByOrder(player.getPlayerOrder() - 1)) != null) {
+            Player otherPlayer;
+            otherPlayer = this.findPlayerByOrder(player.getPlayerOrder() - 1);
+            if (player.getPlayerOrder() > 0 && (otherPlayer != null)) {
                 int pOrder = player.getPlayerOrder();
                 player.decreasePlayerOrder();
                 otherPlayer.increasePlayerOrder();
-                this.playerNames.remove(pOrder);
-                this.playerNames.remove(pOrder - 1);
-                this.playerNames.put(new Integer(pOrder - 1), player.getName());
-                this.playerNames.put(new Integer(pOrder), otherPlayer.getName());
                 ++this.stateVersion;
             }
             this.playersLocked = false;
@@ -322,16 +317,13 @@ public class Game {
 
     public void playerDown(Player player) {
         if (!this.playersLocked) {
-            Player otherPlayer;
             this.playersLocked = true;
-            if (player.getPlayerOrder() < playerNames.size()-1 && (otherPlayer = this.findPlayerByOrder(player.getPlayerOrder() + 1)) != null) {
+            Player otherPlayer;
+            otherPlayer = this.findPlayerByOrder(player.getPlayerOrder() + 1);
+            if ((player.getPlayerOrder() < players.size()-1) && (otherPlayer != null)) {
                 int pOrder = player.getPlayerOrder();
                 player.increasePlayerOrder();
                 otherPlayer.decreasePlayerOrder();
-                this.playerNames.remove(pOrder);
-                this.playerNames.remove(pOrder + 1);
-                this.playerNames.put(new Integer(pOrder + 1), player.getName());
-                this.playerNames.put(new Integer(pOrder), otherPlayer.getName());
                 ++this.stateVersion;
             }
             this.playersLocked = false;

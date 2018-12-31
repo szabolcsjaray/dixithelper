@@ -14,6 +14,8 @@
  */
 package com.jeec.game;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jeec.game.Game;
 import com.jeec.game.Player;
 import com.jeec.game.forms.AddPlayerForm;
@@ -156,6 +158,15 @@ public class GameController {
 
     @RequestMapping(value={"/getgame"})
     public ResponseEntity<Game> getGame() {
+        //debuging:
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonInString = mapper.writeValueAsString(this.game);
+            System.out.println(jsonInString +"\n");
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         ResponseEntity response = new ResponseEntity(this.game, HttpStatus.OK);
         return response;
     }

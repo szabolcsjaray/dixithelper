@@ -115,6 +115,16 @@ public class TestGame {
     }
 
     @Test
+    public void testPlayerDown() {
+        this.initPlayers();
+        Player player = this.game.findPlayerByOrder(1);
+        this.game.playerDown(player);
+        Assert.assertEquals(2L, player.getPlayerOrder());
+        Assert.assertEquals("Jack", player.getName());
+        Assert.assertEquals("Jane", this.game.findPlayerByOrder(1).getName());
+    }
+
+    @Test
     public void testGameStarted() {
         this.initPlayers();
         this.game.nextRound();
