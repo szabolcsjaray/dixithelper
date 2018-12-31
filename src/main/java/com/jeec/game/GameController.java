@@ -158,7 +158,8 @@ public class GameController {
 
     @RequestMapping(value={"/getgame"})
     public ResponseEntity<Game> getGame() {
-        //debuging:
+        /*
+        // for debuging:
         ObjectMapper mapper = new ObjectMapper();
         try {
             String jsonInString = mapper.writeValueAsString(this.game);
@@ -166,7 +167,7 @@ public class GameController {
         } catch (JsonProcessingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        }*/
         ResponseEntity response = new ResponseEntity(this.game, HttpStatus.OK);
         return response;
     }

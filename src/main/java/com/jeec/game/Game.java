@@ -181,7 +181,6 @@ public class Game {
                 this.players.get(name).setMyCard(-1);
                 this.players.get(name).setMyChoice(-1);
             }
-            ++this.stateVersion;
             return "T\u00f6bben jel\u00f6lt\u00e9tek ugyanazt saj\u00e1tnak, ellen\u0151rizz\u00e9tek le!";
         }
         this.checkAndSetRoundEnd();
