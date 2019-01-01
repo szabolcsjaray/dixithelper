@@ -297,6 +297,9 @@
                             cardsInner += getCircle(player.colorStr,"35px","bottom:12px;right:"+chooseX+"px");
                             chooseX+=10;
                         }
+                        if (player.teller && player.myCard==i) {
+                            cardsInner += "<img src=\"pict/book.svg\" style=\"top:80px;left:10px;width:35px;height:35px;position:absolute;display:block;\">";
+                        }
                     });
                 }
                 cardsInner += "</div>\n";
