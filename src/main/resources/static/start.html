@@ -48,9 +48,12 @@
         var playerData = new Object();
 
         function alertIt(text,state) {
-            alert(text);
+            if (text!=null && text!="" ) {
+                alert(text);
+            }
             errorHappened = true;
         }
+
 
         function sendRest(service, callBack, errorCallBack = alertIt, post=false, postData=null) {
             var xhttp = new XMLHttpRequest();
