@@ -209,8 +209,10 @@ public class Game {
             this.state = GameState.WAITING_FOR_CHOICES;
             return;
         }
+        if (this.state==GameState.ROUND_ENDED) {
+            return;
+        }
         this.state = GameState.ROUND_ENDED;
-        ++this.stateVersion;
         for (String name : this.players.keySet()) {
             player = this.players.get(name);
             player.setState(PlayerState.ROUND_ENDED);

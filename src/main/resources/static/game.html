@@ -254,14 +254,20 @@
                     myCard = cardId;
                     if (me.teller) {
                         sendCards();
+                        return;
                     } else {
                         whileSettingCards = true;
                     }
                     updateCards();
                     updateStateAndButtons();
-                } else if ((me.myCard!=cardId) && !me.teller) {
+                } else if ((myCard!=cardId) && !me.teller) {
                     myChoice = cardId;
                     sendCards();
+                    return;
+                } else if (myCard==cardId) {
+                    myCard=-1;
+                    updateCards();
+                    updateStateAndButtons();
                 }
             }
         }
