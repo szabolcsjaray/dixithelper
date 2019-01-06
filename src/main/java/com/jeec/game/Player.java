@@ -160,4 +160,7 @@ public class Player {
         return playerHash;
     }
 
+    public boolean isWhiteText() {
+        return this.getColor().isWhiteText();
+    }
 }

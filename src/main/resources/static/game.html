@@ -169,7 +169,7 @@
                             chooseX+=10;
                         }
                         if (player.teller && player.myCard==i) {
-                            cardsInner += "<img src=\"pict/book.svg\" style=\"top:80px;left:10px;width:35px;height:35px;position:absolute;display:block;\">";
+                            cardsInner += "<img src=\"pict/book_white.svg\" style=\"top:80px;left:10px;width:40px;height:40px;position:absolute;display:block;\">";
                         }
                     });
                 }
@@ -194,9 +194,12 @@
             pOrder.forEach(function(o,i) {
                 var pName = Object.keys(game.players)[o];
                 var player = game.players[pName];
+                var textColor = player.whiteText ? "white" : "black";
+                var whitePostFix= player.whiteText ? "_white" : "";
                 playerInner += "<div style=\"width:45%;background-color:"+ player.colorStr+
-                                ";color:black;margin:10px;display:inline-block;"+
+                                ";color:"+ textColor +";margin:10px;display:inline-block;"+
                                 "text-align:left;" +
+                                "border-radius: 8px; border: 1px solid "+ player.colorStr+";" +
                                 "line-height:50px;font-weight:bold;\">";
                 playerInner += "<div style=\"width:55%;display:inline-block;margin:0;position:relative;"+
                                "padding-left:40px;\">"
@@ -209,7 +212,7 @@
                 }
                 playerInner += pName;
                 if (player.teller) {
-                    playerInner += " <img src=\"pict/book.svg\"" +
+                    playerInner += " <img src=\"pict/book" + whitePostFix + ".svg\"" +
                                    " style=\"width:40px;height:40px;top:5px;position:relative;\"> ";
                 }
                 playerInner += "</div>";
@@ -223,10 +226,12 @@
                     }
                 } else {
                     if (i!=0) {
-                        playerInner += "<img src=\"pict/ArrowUp.svg\" onClick=\"playerUp("+player.playerId+");\"> &nbsp;";
+                        playerInner += "<img src=\"pict/ArrowUp" + whitePostFix + ".svg\" onClick=\"playerUp("+
+                                       player.playerId+");\"> &nbsp;";
                     }
                     if (i<pOrder.length-1) {
-                        playerInner += "<img src=\"pict/ArrowDown.svg\" onClick=\"playerDown("+player.playerId+");\"> &nbsp;";
+                        playerInner += "<img src=\"pict/ArrowDown" + whitePostFix + ".svg\" onClick=\"playerDown("+
+                                       player.playerId+");\"> &nbsp;";
                     }
                 }
                 playerInner += "</div>";
