@@ -7,6 +7,6 @@ from the browser, opening the start page of dixithelper.
 Then they play with the cards the usual way, just setting their own card, and the card they think is the teller's card, 
 follwing the instructions on the page in the browser.
 
-The dixithelper calculates the points of the players, and instruct the players for easier experience.
+The dixithelper calculates the points of the players, and instruct the players for easier game experience.
 
-Current state: game server is about ready, but client side (html and javascript) is to be created.
+Current state: first version of the server and the client part ios ready, some improvements are needed.
