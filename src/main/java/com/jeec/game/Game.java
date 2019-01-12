@@ -146,21 +146,23 @@ public class Game {
         ++this.stateVersion;
     }
 
-    public int nextRound() {
-        this.state = GameState.WAITING_FOR_CHOICES;
-        ++this.tellerOrder;
-        if (this.tellerOrder >= this.players.size()) {
-            this.tellerOrder = 0;
+    public synchronized int nextRound() {
+        if (this.state==GameState.ROUND_ENDED || this.state==GameState.WAITING_FOR_PLAYERS) {
+            this.state = GameState.WAITING_FOR_CHOICES;
+            ++this.tellerOrder;
+            if (this.tellerOrder >= this.players.size()) {
+                this.tellerOrder = 0;
+            }
+            for (String playerName : this.players.keySet()) {
+                Player player = this.players.get(playerName);
+                player.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
+                player.setMyChoice(-1);
+                player.setMyCard(-1);
+                player.setTeller(player.getPlayerOrder() == this.tellerOrder);
+            }
+            ++this.round;
+            ++this.stateVersion;
         }
-        for (String playerName : this.players.keySet()) {
-            Player player = this.players.get(playerName);
-            player.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
-            player.setMyChoice(-1);
-            player.setMyCard(-1);
-            player.setTeller(player.getPlayerOrder() == this.tellerOrder);
-        }
-        ++this.round;
-        ++this.stateVersion;
         return this.round;
     }
 
