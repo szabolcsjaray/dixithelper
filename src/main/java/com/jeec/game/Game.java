@@ -155,7 +155,7 @@ public class Game {
             }
             for (String playerName : this.players.keySet()) {
                 Player player = this.players.get(playerName);
-                player.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
+                player.setState(PlayerState.GAME_WAITING_FOR_MY_CARD);
                 player.setMyChoice(-1);
                 player.setMyCard(-1);
                 player.setTeller(player.getPlayerOrder() == this.tellerOrder);
@@ -166,16 +166,14 @@ public class Game {
         return this.round;
     }
 
-    public String setPlayerChoice(String playerName, int myCard, int myChoice) {
-        if (myCard == myChoice) {
-            return "Nem v\u00e1lasythatod a saj\u00e1todat.";
-        }
-        if (!this.players.containsKey(playerName)) {
+    public synchronized String setOwnCard(final int playerId, final int myCard) {
+        Player player = this.getPlayer(playerId);
+        if (player==null) {
             return "Nincs ilyen j\u00e1t\u00e9kos.";
         }
-        Player player = this.players.get(playerName);
         ++this.stateVersion;
-        player.choose(myCard, myChoice);
+        player.setMyCard(myCard);
+        player.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
         if (this.checkConflictingMyCards()) {
             this.state = GameState.CONFLICTING_CHOICES;
             for (String name : this.players.keySet()) {
@@ -185,17 +183,44 @@ public class Game {
             }
             return "T\u00f6bben jel\u00f6lt\u00e9tek ugyanazt saj\u00e1tnak, ellen\u0151rizz\u00e9tek le!";
         }
-        this.checkAndSetRoundEnd();
+        if (player.isTeller()) {
+            player.setState(PlayerState.WAITING_FOR_OTHERS_CHOICE);
+            checkAndSetRoundEnd();
+        }
+        return "OK";
+    }
+
+    public String setChoiceCard(String playerName, int myCard, int myChoice) {
+        if (myCard == myChoice) {
+            return "Nem v\u00e1lasythatod a saj\u00e1todat.";
+        }
+        if (!this.players.containsKey(playerName)) {
+            return "Nincs ilyen j\u00e1t\u00e9kos.";
+        }
+        Player player = this.players.get(playerName);
+        if (player.getMyCard()==-1) {
+            return "Először a saját kártyát kell bejelölni.";
+        }
+        if (player.getState()==PlayerState.GAME_WAITING_FOR_MY_CHOICE) {
+            ++this.stateVersion;
+            player.choose(myCard, myChoice);
+            this.checkAndSetRoundEnd();
+        }
         return "OK";
     }
 
     private boolean checkConflictingMyCards() {
         for (String name : this.players.keySet()) {
             Player player = this.players.get(name);
-            if (player.getState() != PlayerState.WAITING_FOR_OTHERS_CHOICE) continue;
+            if (player.getState() != PlayerState.WAITING_FOR_OTHERS_CHOICE &&
+                    player.getState() != PlayerState.GAME_WAITING_FOR_MY_CHOICE) continue;
             for (String otherName : this.players.keySet()) {
                 Player otherPlayer = this.players.get(otherName);
-                if (otherPlayer.getState() != PlayerState.WAITING_FOR_OTHERS_CHOICE || player == otherPlayer || player.getMyCard() != otherPlayer.getMyCard()) continue;
+                if (player == otherPlayer ||
+                    (otherPlayer.getState() != PlayerState.WAITING_FOR_OTHERS_CHOICE &&
+                    otherPlayer.getState() != PlayerState.GAME_WAITING_FOR_MY_CHOICE) ||
+                    player.getMyCard() != otherPlayer.getMyCard())
+                    continue;
                 return true;
             }
         }
@@ -207,6 +232,7 @@ public class Game {
         for (String name : this.players.keySet()) {
             player = this.players.get(name);
             if (player.getState() != PlayerState.GAME_WAITING_FOR_MY_CHOICE &&
+                player.getState() != PlayerState.GAME_WAITING_FOR_MY_CARD &&
                 player.getState() != PlayerState.CONFLICT_RESET) continue;
             this.state = GameState.WAITING_FOR_CHOICES;
             return;
@@ -357,7 +383,7 @@ public class Game {
         teller.setTeller(true);
         for (String name : this.players.keySet()) {
             Player player = this.players.get(name);
-            player.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
+            player.setState(PlayerState.GAME_WAITING_FOR_MY_CARD);
         }
         ++this.stateVersion;
         return this.players.size();
@@ -375,7 +401,7 @@ public class Game {
         if (resetCount == this.players.size()) {
             for (String name : this.players.keySet()) {
                 pl = this.players.get(name);
-                pl.setState(PlayerState.GAME_WAITING_FOR_MY_CHOICE);
+                pl.setState(PlayerState.GAME_WAITING_FOR_MY_CARD);
             }
             this.setState(GameState.WAITING_FOR_CHOICES);
             ++this.stateVersion;

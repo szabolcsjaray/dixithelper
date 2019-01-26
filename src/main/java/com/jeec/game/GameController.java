@@ -186,9 +186,20 @@ public class GameController {
         return response;
     }
 
+    @PostMapping(value={"/setowncard"})
+    public ResponseEntity<String> setOwnCard(@RequestBody SetCardForm setCardForm) {
+        String result = this.game.setOwnCard(setCardForm.getPlayerId(), setCardForm.getOwnCard());
+        if ("OK".equals(result)) {
+            System.out.println("Player Own Choice:" + setCardForm);
+            return new ResponseEntity("OK", HttpStatus.OK);
+        }
+        System.out.println("Problem with own choice:" + setCardForm);
+        return new ResponseEntity(result, HttpStatus.CONFLICT);
+    }
+
     @PostMapping(value={"/setcards"})
     public ResponseEntity<String> setCards(@RequestBody SetCardForm setCardForm) {
-        String result = this.game.setPlayerChoice(setCardForm.getPlayer(), setCardForm.getOwnCard(), setCardForm.getGuessCard());
+        String result = this.game.setChoiceCard(setCardForm.getPlayer(), setCardForm.getOwnCard(), setCardForm.getGuessCard());
         if ("OK".equals(result)) {
             System.out.println("Player Choice:" + setCardForm);
             return new ResponseEntity("OK", HttpStatus.OK);

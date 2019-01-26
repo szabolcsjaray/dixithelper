@@ -5,10 +5,11 @@ package com.jeec.game;
 
 public enum PlayerState {
     WAITING_FOR_GAME_START,
+    GAME_WAITING_FOR_MY_CARD,
     GAME_WAITING_FOR_MY_CHOICE,
     WAITING_FOR_OTHERS_CHOICE,
     CONFLICT_RESET,
     ROUND_ENDED,
-    GAME_ENDED;
-    
+    GAME_ENDED, ;
+
 }
