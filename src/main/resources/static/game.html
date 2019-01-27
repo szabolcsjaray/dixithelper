@@ -21,7 +21,6 @@
         var pOrder = new Array();
         var hideCardSigns = false;
         var myLastState = "JUST_ARRIVED";
-        var whileSettingCards = false;
 
         function countReady() {
             var count = 0;
@@ -47,19 +46,16 @@
                     showEl("startButton", "inline-block");
                 }
                 showEl("newPlayerButton", "inline-block");
-            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE"|| 
+            } else if (me.state=="GAME_WAITING_FOR_MY_CARD"||
                        me.state=="CONFLICT_RESET") {
-                if (myCard==-1) {
                     if (me.state=="CONFLICT_RESET") {
                         stateDiv.innerHTML="Valaki rosszul jelölt, kérlek (ismét) jelöld a saját lapodat!";
                     } else {
                         stateDiv.innerHTML="Jelöld meg a saját lapodat, amint lent vannak az asztalon a kártyák!";
                     }
-                } else if (!me.teller) {
-                    stateDiv.innerHTML="Jelöld meg a lapot" +
-                    (me.state=="CONFLICT_RESET" ? " (ismét)":"") +
-                    ", amelyikről szerinted a mesélő beszélt!";
-                }
+            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+                 stateDiv.innerHTML="Jelöld meg a lapot" +
+                 ", amelyikről szerinted a mesélő beszélt!";
             } else if (me.state=="WAITING_FOR_OTHERS_CHOICE") {
                 checkOtherPlayers();
                 var ready=countReady();
@@ -71,12 +67,17 @@
             }
         }
 
+        function inRoundState(state) {
+            return state=="GAME_WAITING_FOR_MY_CHOICE" ||
+                   state=="GAME_WAITING_FOR_MY_CARD" ||
+                   state=="CONFLICT_RESET";
+        }
+
         function findNextPlayer() {
             var nextPlayer = null;
             Object.keys(game.players).forEach( function(pName) {
                if (game.players[pName].deviceHash==deviceHash &&
-                   (game.players[pName].state=="GAME_WAITING_FOR_MY_CHOICE" ||
-                    game.players[pName].state=="CONFLICT_RESET") &&
+                   inRoundState(game.players[pName].state) &&
                    pName!=me.name) {
                    nextPlayer=game.players[pName];
                }
@@ -99,8 +100,7 @@
             }
         }
 
-        function sendCards() {
-            whileSettingCards = false;
+        function sendChoice() {
             var choices = new Object();
             choices.ownCard = myCard;
             choices.guessCard = myChoice;
@@ -109,28 +109,28 @@
             return;
         }
 
+        function sendMyCard() {
+            var mycCardSet = new Object();
+            mycCardSet.ownCard = myCard;
+            mycCardSet.playerId = me.playerId;
+            sendRest("setowncard",doNothing, doNothing, true,mycCardSet);
+            return;
+        }
+
         function cardClicked(cardId) {
             if (me==null) return;
-            if (me.state=="GAME_WAITING_FOR_MY_CHOICE" || 
+            if (me.state=="GAME_WAITING_FOR_MY_CARD" ||
                 me.state=="CONFLICT_RESET") {
-                if (myCard==-1) {
-                    myCard = cardId;
-                    if (me.teller) {
-                        sendCards();
-                        return;
-                    } else {
-                        whileSettingCards = true;
-                    }
-                    updateCards();
-                    updateStateAndButtons();
-                } else if ((myCard!=cardId) && !me.teller) {
+                   myCard = cardId;
+                   sendMyCard();
+                   return;
+            } else if (me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+                if (myCard!=cardId && !me.teller) {
                     myChoice = cardId;
-                    sendCards();
+                    sendChoice();
                     return;
                 } else if (myCard==cardId) {
-                    myCard=-1;
-                    updateCards();
-                    updateStateAndButtons();
+                    // todo reset my card
                 }
             }
         }
@@ -258,17 +258,15 @@
                         myLastState=me.state;
                     }
                     me = game.players[pName];
-                    if (myLastState=="ROUND_ENDED" && me.state=="GAME_WAITING_FOR_MY_CHOICE") {
+                    if (myLastState=="ROUND_ENDED" && me.state=="GAME_WAITING_FOR_MY_CARD") {
                         myCard=-1;
                         myChoice=-1;
                     }
                     getEl("dixitHeader").innerHTML="DIXITHELPER -- " +
                                                    getRabbit(80,me.colorStr,"10px", "10px", "white", "10px", "inline-block") +
                                                    pName + " -- kör: " + game.round;
-                    if (!whileSettingCards) {
-                        myCard = me.myCard;
-                        myChoice = me.myChoice;
-                    }
+                    myCard = me.myCard;
+                    myChoice = me.myChoice;
                 }
             });
             updateOrder();
