@@ -5,6 +5,8 @@ import com.jeec.game.Device;
 import com.jeec.game.GameState;
 import com.jeec.game.Player;
 import com.jeec.game.PlayerState;
+import com.jeec.game.log.GameLog;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,7 @@ public class Game {
     private Map<String, Player> players = new HashMap<String, Player>();
     private Map<String, Device> devices = new HashMap<String, Device>();
     private Map<String, String> availableColors = new HashMap<>();
+    private GameLog gameLog = null;
 
 	private int round;
     int tellerOrder = -1;
@@ -24,6 +27,7 @@ public class Game {
     public Game() {
     	Player.resetPlayerIds();
         initAllColors();
+        gameLog =  new GameLog(this);
     }
 
     private void initAllColors() {
@@ -246,6 +250,7 @@ public class Game {
             player.setState(PlayerState.ROUND_ENDED);
         }
         this.calculatePoints();
+        this.gameLog.logGameStateChange();
     }
 
     private void calculatePoints() {
@@ -385,6 +390,7 @@ public class Game {
             Player player = this.players.get(name);
             player.setState(PlayerState.GAME_WAITING_FOR_MY_CARD);
         }
+        gameLog.logGameStateChange();
         ++this.stateVersion;
         return this.players.size();
     }
@@ -408,4 +414,9 @@ public class Game {
         }
         return resetCount;
     }
+
+    public GameLog getGameLog() {
+        return gameLog;
+    }
+
 }
