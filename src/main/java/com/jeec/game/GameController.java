@@ -20,6 +20,8 @@ import com.jeec.game.Game;
 import com.jeec.game.Player;
 import com.jeec.game.forms.AddPlayerForm;
 import com.jeec.game.forms.SetCardForm;
+import com.jeec.game.log.GameLog;
+
 import io.nayuki.qrcodegen.QrCode;
 import java.io.PrintStream;
 import java.net.DatagramSocket;
@@ -169,6 +171,12 @@ public class GameController {
             e.printStackTrace();
         }*/
         ResponseEntity response = new ResponseEntity(this.game, HttpStatus.OK);
+        return response;
+    }
+
+    @RequestMapping(value={"/getlog"})
+    public ResponseEntity<GameLog> getGameLog() {
+        ResponseEntity response = new ResponseEntity(this.game.getGameLog(), HttpStatus.OK);
         return response;
     }
 

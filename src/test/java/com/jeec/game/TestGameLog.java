@@ -73,6 +73,18 @@ public class TestGameLog {
     }
 
     @Test
+    public void testSavedPlayers() {
+        game.startGame();
+        Assert.assertEquals(game.getPlayers().keySet().size(), gameLog.getPlayers().size());
+        gameLog.getPlayers().forEach((savedPlayer) -> {
+            Player player = game.getPlayer(savedPlayer.getPlayerId());
+            Assert.assertNotNull(player);
+            Assert.assertEquals(player.getName(), savedPlayer.getName());
+            Assert.assertEquals(player.getColorStr(), savedPlayer.getColor());
+        });
+    }
+
+    @Test
     public void testGameFirstRoundEnded() {
         game.startGame();
 
@@ -95,5 +107,66 @@ public class TestGameLog {
         checkPlayerRound(playerRound, 1, 2, 1, 1);
         playerRound = roundLog.getPlayerRound(player3Id);
         checkPlayerRound(playerRound, 2, 1, 1, 1);
+    }
+
+    @Test
+    public void testGameTwoRounds() {
+        game.startGame();
+
+        game.setOwnCard(player1Id, 0);
+        //game.setChoiceCard(PLAYER1, 0, 1);
+        game.setOwnCard(player2Id, 1);
+        game.setChoiceCard(PLAYER2, 1, 2);
+        game.setOwnCard(player3Id, 2);
+        game.setChoiceCard(PLAYER3, 2, 1);
+
+        game.nextRound();
+
+
+        Assert.assertEquals(2, gameLog.getLastRound());
+        RoundLog roundLog = gameLog.getRoundLog(2);
+        Assert.assertNotNull(roundLog);
+        Assert.assertEquals(game.getPlayers().keySet().size(), roundLog.getPlayerRounds().size());
+        Assert.assertEquals(1, roundLog.getTeller());
+
+        PlayerRound playerRound = roundLog.getPlayerRound(player1Id);
+        checkPlayerRound(playerRound, -1, -1, 0, 0);
+        playerRound = roundLog.getPlayerRound(player2Id);
+        checkPlayerRound(playerRound, -1, -1, 1, 0);
+        playerRound = roundLog.getPlayerRound(player3Id);
+        checkPlayerRound(playerRound, -1, -1, 1, 0);
+    }
+
+    @Test
+    public void testGameTwoRoundEnded() {
+        game.startGame();
+
+        game.setOwnCard(player1Id, 0);
+        //game.setChoiceCard(PLAYER1, 0, 1);
+        game.setOwnCard(player2Id, 1);
+        game.setChoiceCard(PLAYER2, 1, 2);
+        game.setOwnCard(player3Id, 2);
+        game.setChoiceCard(PLAYER3, 2, 1);
+
+        game.nextRound();
+        game.setOwnCard(player1Id, 0);
+        game.setChoiceCard(PLAYER1, 0, 1);
+        game.setOwnCard(player2Id, 1);
+        //game.setChoiceCard(PLAYER2, 1, 2);
+        game.setOwnCard(player3Id, 2);
+        game.setChoiceCard(PLAYER3, 2, 1);
+
+        Assert.assertEquals(2, gameLog.getLastRound());
+        RoundLog roundLog = gameLog.getRoundLog(2);
+        Assert.assertNotNull(roundLog);
+        Assert.assertEquals(game.getPlayers().keySet().size(), roundLog.getPlayerRounds().size());
+        Assert.assertEquals(1, roundLog.getTeller());
+
+        PlayerRound playerRound = roundLog.getPlayerRound(player1Id);
+        checkPlayerRound(playerRound, 0, 1, 2, 2);
+        playerRound = roundLog.getPlayerRound(player2Id);
+        checkPlayerRound(playerRound, 1, -1, 1, 0);
+        playerRound = roundLog.getPlayerRound(player3Id);
+        checkPlayerRound(playerRound, 2, 1, 3, 2);
     }
 }

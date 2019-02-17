@@ -166,6 +166,8 @@ public class Game {
             }
             ++this.round;
             ++this.stateVersion;
+            resetRoundPoints();
+            gameLog.logGameStateChange();
         }
         return this.round;
     }
@@ -417,6 +419,15 @@ public class Game {
 
     public GameLog getGameLog() {
         return gameLog;
+    }
+
+    public int getTellerId() {
+        for (Player player:players.values()) {
+            if (player.isTeller()) {
+                return player.getPlayerId();
+            }
+        }
+        return -1;
     }
 
 }
