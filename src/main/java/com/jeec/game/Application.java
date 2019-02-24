@@ -1,6 +1,6 @@
 /*
  * Decompiled with CFR 0.137.
- * 
+ *
  * Could not load the following classes:
  *  org.springframework.boot.CommandLineRunner
  *  org.springframework.boot.SpringApplication
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, (String[])args);
+        SpringApplication.run(Application.class, args);
     }
 
     @Bean
@@ -34,6 +34,10 @@ public class Application {
             System.out.println("DixitHelper started.");
             String ip = GameController.getIp();
             String url = "http://" + ip + ":8080";
+            if (args.length>0 && args[0].equalsIgnoreCase("dixittest")) {
+                System.out.println("Arguments:" + args.length + " : " + args[0]);
+                GameController.setTestMode(true);
+            }
             if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
                 try {
@@ -45,7 +49,7 @@ public class Application {
             } else {
                 Runtime runtime = Runtime.getRuntime();
                 try {
-                    runtime.exec("xdg-open " + url);
+                    runtime.exec("xdg-open " + url );
                 }
                 catch (IOException e) {
                     e.printStackTrace();

@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController {
     private String ip;
     private Game game = new Game();
+    private static boolean testMode=false;
 
     public static String getIp() {
         String ip;
@@ -69,7 +70,8 @@ public class GameController {
         StringBuilder page = new StringBuilder("Dixit Helper.<br> \n"+
             "Nyisd meg ezt a c\u00edmet a jelentkez\u00e9shez: ");
         String address="http://" + ip + ":8080/start.html";
-        page.append("<b><a href=\""+address+"\">"+address+"</a></b>");
+        String testString = (testMode ? "?test" : "");
+        page.append("<b><a href=\""+address+testString+"\">"+address+testString+"</a></b>");
         page.append("<br>... vagy olvasd be a QR kódot az induló oldal címét, és úgy nyisd meg!<br>");
         final int STARTING_XML_HEADER_LENGTH = 137;
         page.append(new String(createQRImage()).substring(STARTING_XML_HEADER_LENGTH));
@@ -214,5 +216,9 @@ public class GameController {
         }
         System.out.println("Problem with choice:" + setCardForm);
         return new ResponseEntity(result, HttpStatus.CONFLICT);
+    }
+
+    public static void setTestMode(boolean b) {
+        testMode = b;
     }
 }

@@ -5,6 +5,7 @@
     <title>DixitHelper játék oldal</title>
     <script type="text/javascript" src="js/dixithelperconst.js"></script>
     <script type="text/javascript" src="js/dixithelpercommon.js"></script>
+    <script type="text/javascript" src="js/dixithelperlog.js"></script>
     <script type="text/javascript" >
 
         var deviceHash;
@@ -200,7 +201,7 @@
                                 ";color:"+ textColor +";margin:10px;display:inline-block;"+
                                 "text-align:left;" +
                                 "border-radius: 8px; border: 1px solid "+ player.colorStr+";" +
-                                "line-height:50px;font-weight:bold;\">";
+                                "line-height:50px;font-weight:bold;\" onClick=\"gameLog();\">";
                 playerInner += "<div style=\"width:55%;display:inline-block;margin:0;position:relative;"+
                                "padding-left:40px;\">"
                 if (pName==me.name) {
@@ -347,6 +348,11 @@
 <div id="state"></div>
 <div id="cards"></div><br>
 <div id="players"></div>
+<div id="log" style="position:absolute;top:100px;left:5%;width:90%;height:400px;background-color:white;display:none;" 
+    onClick="hideEl('log');">
+    <canvas id="logCanvas" style="width:100%;height:300px;"></canvas>
+    <div id="logDiv" style="text-align: center;color: #101010;">Játékosok pontjai.</div>
+</div>
 
 <br>
 <div style="display:block;position:relative;text-align:center;width:100%;">

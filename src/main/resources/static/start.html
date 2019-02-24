@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,11 @@
         var running = false;
         var lastVersion = -1;
         var errorHappened = false;
-        var myAddress=window.location.href.reverse().substring(10).reverse();
+        var testMode = window.location.href.indexOf("test");
+        var myAddress=window.location.href.reverse().substring(10+(testMode>-1 ? 5 : 0)).reverse();
         var playerData = new Object();
+        var goToGameFlag = false;
+        var testPlayers = 0;
 
         function addColorDiv(colStr,colName) {
             colorDivContent += "<div "+
@@ -85,6 +88,11 @@
         function init() {
             getEl("playerName").value="";
             sendRest("getgame",checkDeviceAndRegisterIfNeeded);
+            var url = new URL(window.location.href);
+            let test = url.searchParams.get("test");
+            if (testMode>-1) {
+                showEl("testGame");
+            }
             pollState();
         }
 
@@ -105,12 +113,16 @@
         }
 
         function playerAdded() {
-            sendRest("getgame", goToGame);
             selectedColor="";
+            if (goToGameFlag) {
+                sendRest("getgame", goToGame);
+            } else {
+                sendRest("getgame", regTestPlayers);
+            }
         }
 
-        function registerPlayer() {
-            var playerEl = document.getElementById("playerName");
+        function registerPlayer(go = true) {
+            var playerEl = getEl("playerName");
             if (playerEl.value=="")
                 return;
             if (selectedColor=="")
@@ -119,8 +131,28 @@
             playerData.deviceHash = deviceHash;
             playerData.playerName = playerEl.value;
             playerData.colorName = selectedColor;
+            goToGameFlag = go;
+            testPlayers++;
             sendRest("addPlayer",playerAdded, alertIt, true,playerData);
             running = false;
+        }
+
+        function regTestPlayers() {
+            if (testPlayers==0) {
+	            getEl("playerName").value="TestJoe";
+	            selectedColor = "PINK";
+	            registerPlayer(false);
+            } else if (testPlayers==1) {
+                getEl("playerName").value="TestJane";
+                selectedColor = "BLUE";
+                registerPlayer(false);
+            } else if (testPlayers==2) {
+                getEl("playerName").value="TestJack";
+                selectedColor = "GRAY";
+                registerPlayer(true);
+            } else {
+                goToGame();
+            }
         }
     </script>
 </head>
@@ -140,10 +172,11 @@ Válassz színt ezek közül:<br>
     <div style="display:block;text-align:center;background-color:gray;
                 border: 10px solid #D0D0E4;border-right-color:#A0A0B4;font-weight:bold;;
                 border-bottom-color:#808094;width:200px;margin:auto;color:white;"
-                onClick="registerPlayer();">
+                onClick="registerPlayer(true);">
         START
     </div>
 </div>
+<div id="testGame" style="display:none;" onClick="regTestPlayers();">TestGame</div>
 
 </body>
 
