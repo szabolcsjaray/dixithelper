@@ -197,11 +197,12 @@
                 var player = game.players[pName];
                 var textColor = player.whiteText ? "white" : "black";
                 var whitePostFix= player.whiteText ? "_white" : "";
+                let gameLogClick = (game.state=="WAITING_FOR_PLAYERS") ? "" : " onClick=\"gameLog();";
                 playerInner += "<div style=\"width:45%;background-color:"+ player.colorStr+
                                 ";color:"+ textColor +";margin:10px;display:inline-block;"+
                                 "text-align:left;" +
                                 "border-radius: 8px; border: 1px solid "+ player.colorStr+";" +
-                                "line-height:50px;font-weight:bold;\" onClick=\"gameLog();\">";
+                                "line-height:50px;font-weight:bold;\"" + gameLogClick + "\">";
                 playerInner += "<div style=\"width:55%;display:inline-block;margin:0;position:relative;"+
                                "padding-left:40px;\">"
                 if (pName==me.name) {
@@ -251,6 +252,40 @@
             });
         }
 
+        function getMaxPoint() {
+            var max = 0;
+            Object.keys(game.players).forEach( function(pName) {
+                let player = game.players[pName];
+                if (player.point>max) {
+                    max = player.point;
+                }
+            });
+            return max;
+        }
+
+        function updateRabbits() {
+            let dRabbits = getEl("rabbits");
+            let htmlStr = "";
+            let maxPoint = getMaxPoint() + 10;
+            var offset = new Map();
+            pOrder.forEach(function(o,i) {
+                let pName = Object.keys(game.players)[o];
+                let player = game.players[pName];
+                let myOffset = Math.round(player.point*100/maxPoint);
+                if (offset.has(myOffset)) {
+                    offset.set(myOffset, offset.get(myOffset) + 4);
+                } else {
+                    offset.set(myOffset, 0);
+                }
+                htmlStr += getRabbit(50, player.colorStr,
+                        offset.get(myOffset)+"px",
+                        (myOffset+offset.get(myOffset)/20)+"%",
+                        "white",
+                        "10px");
+            });
+            dRabbits.innerHTML = htmlStr;
+        }
+
         function updateGame(gameJson) {
             game = JSON.parse(gameJson);
             Object.keys(game.players).forEach(function(pName) {
@@ -274,6 +309,7 @@
             updateStateAndButtons();
             updateCards();
             updatePlayers();
+            updateRabbits();
         }
 
         function checkVersion(version) {
@@ -348,6 +384,8 @@
 <div id="state"></div>
 <div id="cards"></div><br>
 <div id="players"></div>
+<div id="rabbits" style="height:70px;background-color:#181850;border-radius: 8px;
+               width:94%;margin-top: 10px;margin-left: auto;margin-right: auto;position:relative;"></div>
 <div id="log" style="position:absolute;top:100px;left:5%;width:90%;background-color:white;display:none;border-radius:12px;"
     >
     <canvas id="logCanvas" style="width:100%;height:300px;" onClick="hideEl('log');"></canvas>
